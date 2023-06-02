@@ -18,6 +18,16 @@
     height: 100%;
 }
 
+
+
+
+
+
+
+
+
+
+
     </style>
 </head>
 
@@ -30,6 +40,12 @@
             </button>
         </a>
     </div>
+    <button class="btn btn-transparent text-gray my-3" style="font-family: cursive;"
+            onclick="localStorage.removeItem('Authorization'); window.location.reload();">
+        <i class="fa-solid fa-right-from-bracket fa-xl"></i>
+        Log out
+    </button>
+
     <div class="container text-center">
         <h1 class="my-5" style="font-family: cursive;">List of Floors - ADMIN</h1>
     </div>
@@ -96,6 +112,12 @@
             <input required="*" type="number" id="floorPrice" placeholder="Enter floor price">
             <span></span>
         </label>
+
+        <label>
+            <legend>Floor Type</legend>
+            <select required id="floorType"></select>
+        </label>
+
 
     </div>
     <div class="form-container__auth-block">
@@ -194,13 +216,48 @@
         </button>
     </div>
 </div>
+<script>
+async function fetchFloorTypes() {
+  const response = await fetch('/api/floortype/');
+  if (response.ok) {
+    const floorTypes = await response.json();
+    const floorTypeSelect = document.getElementById('floorType');
 
+    // Clear existing options
+    floorTypeSelect.innerHTML = '';
+
+    // Add options for each floor type
+    floorTypes.forEach(floorType => {
+      const option = document.createElement('option');
+      option.value = floorType.id;
+      option.textContent = floorType.name;
+      floorTypeSelect.appendChild(option);
+    });
+
+    // Add event listener for change event
+    floorTypeSelect.addEventListener('change', () => {
+        selectedFloorTypeId = floorTypeSelect.value;
+        console.log('Selected value:', selectedFloorTypeId);
+    });
+  }
+}
+
+// Call the fetchFloorTypes function when the page loads
+window.addEventListener('DOMContentLoaded', fetchFloorTypes);
+
+
+
+
+
+</script>
 <script src="../static/js/flooradmin.js"></script>
 <script src="../static/js/dialog.js"></script>
 <script src="../static/js/notification.js" crossorigin="anonymous"></script>
 <script>
     check_token();
     loadTable();
+
+
 
 
 
