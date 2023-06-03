@@ -28,9 +28,11 @@ def login(
     Returns:
         Hash: Hash
     """
+
     user: schemas.User = db.query(models.User).filter(
         models.User.user_email == request.username
     ).first()
+    
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Invalid Credentials"

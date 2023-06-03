@@ -92,11 +92,49 @@ async def company(request: Request):
     return templates.TemplateResponse("contact.html", {"request": request})
 
 
-@router.get("/test", response_class=HTMLResponse)
-async def test(request: Request):
+@router.get("/showroom", response_class=HTMLResponse)
+async def company(request: Request):
+    # current_user: schemas.User = Depends(get_current_user),):
+    """
+    Home page
+    Args:
+        request (Request): Request object
+    Returns:
+        HTMLResponse: HTML response
+    """
+    return templates.TemplateResponse("showroom.html", {"request": request})
+
+
+@router.get("/cungcap", response_class=HTMLResponse)
+async def company(request: Request):
+    # current_user: schemas.User = Depends(get_current_user),):
+    """
+    Home page
+    Args:
+        request (Request): Request object
+    Returns:
+        HTMLResponse: HTML response
+    """
+    return templates.TemplateResponse("cungcap.html", {"request": request})
+
+
+@router.get("/products/", response_class=HTMLResponse)
+async def show_products(request: Request):
     # current_user: schemas.User = Depends(get_current_user),):
 
-    return templates.TemplateResponse("test.html", {"request": request})
+    return templates.TemplateResponse("products.html", {"request": request, "floor_type_id": "all"})
+
+
+@router.get("/products/{id}", response_class=HTMLResponse)
+async def show_products_by_id(request: Request, id: str):
+    # current_user: schemas.User = Depends(get_current_user),):
+    return templates.TemplateResponse("products.html", {"request": request, "floor_type_id": id})
+
+
+@router.get("/product/{id}", response_class=HTMLResponse)
+async def show_product_by_id(request: Request, id: str):
+    # current_user: schemas.User = Depends(get_current_user),):
+    return templates.TemplateResponse("product_detail.html", {"request": request, "floor_id": id})
 
 
 @router.get("/floor/{id}", response_class=HTMLResponse)

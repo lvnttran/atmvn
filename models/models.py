@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 
 from database.configuration import Base
 
-
 class FloorType(Base):
     __tablename__ = "floor_type"
 
@@ -12,17 +11,16 @@ class FloorType(Base):
 
     floors = relationship("Floor", back_populates="floor_type")
 
-
 class Floor(Base):
     __tablename__ = "floor"
 
     floor_id = Column(String(50), primary_key=True)
     floor_name = Column(String(128))
-    floor_image= Column(String(256))
+    floor_images = Column(String(256))
     floor_description = Column(String(256))
     floor_price = Column(Integer)
     floor_type_id = Column(String(15), ForeignKey("floor_type.id"), )
-    # ondelete="CASCADE")
+# ondelete="CASCADE")
     floor_type = relationship("FloorType", back_populates="floors")
 
 
@@ -33,6 +31,7 @@ class User(Base):
     name = Column(String(256))
     user_email = Column(String(256))
     user_pass = Column(String(256))
+
 
 # class Token(BaseModel):
 #     access_token: str

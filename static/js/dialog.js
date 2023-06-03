@@ -1,5 +1,7 @@
 async function openDialog(dialogId, floorId = None) {
+
     const dialog = document.getElementById(dialogId)
+    fetchFloorTypes(dialog);
     dialog.showModal();
     if (floorId) {
         const getFloor = await fetch('http://' + host + '/api/floors/' + floorId, {
@@ -10,18 +12,23 @@ async function openDialog(dialogId, floorId = None) {
         if (getFloor.status === 200) {
             const data = await getFloor.json();
             const floorId = data.floor_id;
+            const floorTypeId = data.floor_type_id;
             const floorName = data.floor_name;
-            const floorimg = data.floor_image;
+            const floorimg = data.floor_images;
             const floorDescription = data.floor_description;
             const floorPrice = data.floor_price;
+            
 
 
             const dialogEditFloor = document.getElementById(dialogId)
-            dialogEditFloor.querySelector('#floorId').value = floorId;
+            dialogEditFloor.querySelector('#baseFloorId').value = floorId.split('-').slice(1).join("-");
             dialogEditFloor.querySelector('#floorName').value = floorName;
             dialogEditFloor.querySelector('#img_view_edit').src = 'http://' + host + '/' + floorimg;
             dialogEditFloor.querySelector('#floorDescription').value = floorDescription;
             dialogEditFloor.querySelector('#floorPrice').value = floorPrice;
+            dialogEditFloor.querySelector('#floorType').value = floorTypeId;
+            dialogEditFloor.querySelector('#btnEditFloor').value = floorId;
+            
 
         }
 
@@ -32,38 +39,43 @@ async function openDialog(dialogId, floorId = None) {
 async function editFloor(editDialogId) {
 
     const dialogEditFloor = document.getElementById(editDialogId)
-    const floorId = dialogEditFloor.querySelector('#floorId').value;
+    const floorTypeId = dialogEditFloor.querySelector('#floorType').value;
+    const baseFloorId = dialogEditFloor.querySelector('#baseFloorId').value;
     const floorName = dialogEditFloor.querySelector('#floorName').value;
     const floorDescription = dialogEditFloor.querySelector('#floorDescription').value;
     const floorPrice = dialogEditFloor.querySelector('#floorPrice').value;
     const floorImgSrc = dialogEditFloor.querySelector('#img_view_edit').src;
-
+    const oldFloorId = dialogEditFloor.querySelector('#btnEditFloor').value
     var myHeaders = new Headers();
     myHeaders.append("accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
-    "floor_name": floorName,
-    "floor_image": floorImgSrc,
-    "floor_description": floorDescription,
-    "floor_price": floorPrice
+        "floor_name": floorName,
+        "floor_images": floorImgSrc,
+        "floor_description": floorDescription,
+        "floor_price": floorPrice,
+        "floor_type_id": floorTypeId,
+        "old_floor_id": oldFloorId,
+        "floor_id": baseFloorId
     });
 
-    var requestOptions = {
-    method: 'PUT',
-    headers: myHeaders,
-    body: raw,
-    redirect: 'follow'
-    };
 
-    const updateFloor = await fetch(`http://${host}/api/floors/?floor_id=${floorId}`, requestOptions)
-    
+    var requestOptions = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+    };
+    // http://${host}
+    const updateFloor = await fetch(`/api/floors/`, requestOptions);
+
     if (updateFloor.status === 202) {
-        generateMessage('success', `Bạn đã thay đổi  floor ${floorId} thành công!`);
+        generateMessage('success', `Bạn đã thay đổi  floor ${oldFloorId} thành công!`);
         closeDialog(editDialogId);
         clearTable();
         loadTable();
-    }else if (updateFloor.status === 401) {
+    } else if (updateFloor.status === 401) {
         window.location.href = 'http://' + host + '/login';
         generateMessage('warning', 'Bạn vui lòng đăng nhập!');
     } else {
@@ -85,15 +97,15 @@ async function urlToFile(url) {
 async function base64ToFile(base64src) {
     // Tách dữ liệu ảnh từ chuỗi base64
     var arr = base64src.split(','),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[arr.length - 1]), 
-    n = bstr.length, 
-    u8arr = new Uint8Array(n);
-    while(n--){
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[arr.length - 1]),
+        n = bstr.length,
+        u8arr = new Uint8Array(n);
+    while (n--) {
         u8arr[n] = bstr.charCodeAt(n);
     }
-    return new File([u8arr], 'filename.png', {type:mime});
-    }
+    return new File([u8arr], 'filename.png', { type: mime });
+}
 
 function changImage(FileImageId, imgViewId) {
     const uploadImage = document.getElementById(FileImageId);
@@ -111,24 +123,26 @@ function closeDialog(dialogId) {
     const dialog = document.getElementById(dialogId)
     dialog.close();
 }
-let selectedFloorTypeId;
+
 async function addNewFloor(dialogId) {
     const dialogAddFloor = document.getElementById(dialogId);
+    const floorTypeSelect = dialogAddFloor.querySelector('#floorType').value;
+    const baseFloorId = dialogAddFloor.querySelector('#baseFloorId').value;
     const floorName = dialogAddFloor.querySelector('#floorName').value;
     const floorImageFile = dialogAddFloor.querySelector('#floorImageFile').files[0];
     const floorDescription = dialogAddFloor.querySelector('#floorDescription').value;
     const floorPrice = dialogAddFloor.querySelector('#floorPrice').value;
-    const floorTypeId =  selectedFloorTypeId;
+  
 
     // Create a FormData object to send the file and other data
     const formData = new FormData();
+    formData.append('floor_id', baseFloorId);
+    formData.append('floor_type_id', floorTypeSelect);
     formData.append('floor_name', floorName);
     formData.append('floor_description', floorDescription);
     formData.append('floor_price', floorPrice);
-    formData.append('floor_type_id', floorTypeId);
     formData.append('floor_image', floorImageFile);
-    console.log(floorImageFile)
-    const addFloor = await fetch('/api/floors?floor_name=' + floorName + '&floor_description=' + floorDescription + '&floor_price=' + floorPrice + '$floor_type_id=' + floorTypeId, {
+    const addFloor = await fetch(`/api/floors?floor_id=${baseFloorId}&floor_type_id=${floorTypeSelect}&floor_name=${floorName}&floor_description=${floorDescription}&floor_price=${floorPrice}`, {
         method: 'POST',
         headers: {
             'Authorization': localStorage.getItem('Authorization'),
@@ -182,4 +196,31 @@ async function deleteFloor(floor_id) {
         }
     }
 
+}
+
+async function fetchFloorTypes(dialog) {
+    const response = await fetch('/api/floortype/');
+    if (response.ok) {
+        const floorTypes = await response.json();
+        const floorTypeSelect = dialog.querySelector('#floorType');
+
+        // Clear existing options
+        floorTypeSelect.innerHTML = '';
+
+        // Add options for each floor type
+        floorTypes.forEach(floorType => {
+            const option = document.createElement('option');
+            option.value = floorType.id;
+            option.textContent = floorType.name;
+            floorTypeSelect.appendChild(option);
+        });
+        selectedFloorTypeId = floorTypeSelect.value;
+        dialog.querySelector('#floortypeid').value = selectedFloorTypeId;
+        // Add event listener for change event
+        floorTypeSelect.addEventListener('change', () => {
+            selectedFloorTypeId = floorTypeSelect.value;
+            dialog.querySelector('#floortypeid').value = selectedFloorTypeId;
+            console.log('Selected value:', selectedFloorTypeId);
+        });
+    }
 }

@@ -73,14 +73,30 @@
                 max-height: 300px;
             }
         }
+        .home-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-family: cursive;
+      background-color: transparent;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+    }
+
+    .home-button i {
+      margin-right: 5px;
+    }
 
 
     </style>
+    <script src="https://kit.fontawesome.com/aa319e5b40.js" crossorigin="anonymous"></script>
+    
 
 </head>
 <body>
-<a href="/">
-    <button class="home-button"><i class="fas fa-home"></i>HOME</button>
+<a href="/floor">
+    <button class="home-button"><i class="fa-solid fa-backward fa-lg"></i> </button>
 </a>
 <div class="container">
     <h1 class="product-title">Details</h1>
@@ -114,14 +130,14 @@
 
         // Function to fetch the floor data from the API
         function fetchFloorData(floorId) {
-            fetch(`/api/floors/${floorId}`)
+            fetch(`/api/floors/test/${floorId}`)
                 .then(response => response.json())
                 .then(data => {
                     // Populate the data in the HTML
                     document.getElementById('floor-name').innerText = data.floor_name;
                     document.getElementById('floor-description').innerText = data.floor_description;
                     document.getElementById('floor-price').innerText = `Price: ${data.floor_price}`;
-                    document.getElementById('main-img').src = `http://localhost:8000/${data.floor_image}`;
+                    document.getElementById('main-img').src = `http://${window.location.host}/${data.floor_image}`;
                 })
                 .catch(error => console.log(error));
         }

@@ -80,3 +80,12 @@ def update(request: schemas.FloorType, id, db: Session):
     floor_type.update(floor_type_new)
     db.commit()
     return "updated"
+
+def check_floor_type(floor_type_id, db: Session):
+    floor_types = db.query(models.FloorType).filter(
+        models.FloorType.id == floor_type_id.strip())
+    if not floor_types.first():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Floor type with id {floor_type_id} not found"
+        )
+    return True

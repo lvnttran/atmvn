@@ -14,6 +14,7 @@ get_db = configuration.get_db
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=List[schemas.ShowFloorType])
 def get_floor_types(db: Session = Depends(get_db)):
+ 
     return floor_type.get_all(db)
 
 
@@ -30,6 +31,8 @@ def create_floor_type(request: schemas.FloorType, db: Session = Depends(get_db))
     return floor_type.create(request, db)
 
 
+
+
 @router.get("/{id}", status_code=status.HTTP_200_OK, response_model=schemas.ShowFloorType)
 def get_floor_type_by_id(id: int, db: Session = Depends(get_db)):
     """
@@ -42,12 +45,11 @@ def get_floor_type_by_id(id: int, db: Session = Depends(get_db)):
     """
     return floor_type.show(id, db)
 
-
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_floor_type(
-        id: int,
-        db: Session = Depends(get_db),
-        # current_user: schemas.User = Depends(get_current_user),
+    id: int,
+    db: Session = Depends(get_db),
+    # current_user: schemas.User = Depends(get_current_user),
 ):
     """
     Delete a floor type by id
@@ -63,13 +65,14 @@ def delete_floor_type(
 
 @router.put("/", status_code=status.HTTP_202_ACCEPTED)
 def update_floor_type(
-        id: str,
-        # floor_name: str,
-        # floor_description: str,
-        # floor_price: float,
-        # floor_image: Optional[UploadFile] = File(...),
-        request: schemas.FloorType,
-        db: Session = Depends(get_db),
-        # current_user: schemas.User = Depends(get_current_user),
+    id: str,
+    # floor_name: str,
+    # floor_description: str,
+    # floor_price: float,
+    # floor_image: Optional[UploadFile] = File(...),
+    request: schemas.FloorType,
+    db: Session = Depends(get_db),
+    # current_user: schemas.User = Depends(get_current_user),
 ):
+   
     return floor_type.update(request, id, db)

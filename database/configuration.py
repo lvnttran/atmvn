@@ -13,16 +13,6 @@ IMAGES_DIR = os.path.join(ROOT_DATA, 'images')
 os.makedirs(IMAGES_DIR, exist_ok=True)
 
 
-from urllib.request import urlopen
-import re as r
- 
-def getIP():
-    d = str(urlopen('http://checkip.dyndns.com/')
-            .read())
- 
-    return r.compile(r'Address: (\d+\.\d+\.\d+\.\d+)').search(d).group(1)
-
-# ip_address = getIP()
 host = "0.0.0.0"
 port = 8000
 engine = create_engine(

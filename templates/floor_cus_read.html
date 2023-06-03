@@ -68,10 +68,25 @@
 		}
 
 
+        .home-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-family: cursive;
+      background-color: transparent;
+      border: none;
+      color: #6c757d;
+      cursor: pointer;
+    }
 
+    .home-button i {
+      margin-right: 5px;
+    }
 
 
     </style>
+    <script src="https://kit.fontawesome.com/aa319e5b40.js" crossorigin="anonymous"></script>
+ 
 
 </head>
 <body>
@@ -82,14 +97,14 @@
 
     <div class="position-fixed" style="top: 0; right: 0;">
         <a href="/">
-            <button class="home-button"><i class="fas fa-home"></i>HOME</button>
+            <button class="home-button">   <i class="fa-solid fa-backward fa-lg"></i>HOME</button>
         </a>
     </div>
 
     <!--Grid layout-->
     <div class="grid">
         <div class="grid-item">
-            <a href="http://localhost:8000/api/floors/1">
+            <a href="/floor/1">
                 <img src="/static/images/hickory.jpg" alt="Image 1">
             </a>
             <div class="caption">
@@ -98,7 +113,7 @@
             </div>
         </div>
         <div class="grid-item">
-            <a href="http://localhost:8000/api/floors/2">
+            <a href="/floor/2">
                 <img src="/static/images/swaran.jpg" alt="Image 2">
             </a>
             <div class="caption">
