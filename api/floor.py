@@ -35,12 +35,13 @@ def create(request: schemas.Floor, floor_image_file: File(), db: Session):
     Returns:
         models.Floor: Floor object
     """
-   
+
     floor_type.check_floor_type(floor_type_id=request.floor_type_id, db=db)
-    floor_id =  f"{request.floor_type_id}-{request.floor_id}"
+    floor_id = f"{request.floor_type_id}-{request.floor_id}"
     check_floor(floor_id, db)
-    new_floor = models.Floor(floor_id=floor_id,floor_name=request.floor_name,
-                             floor_description=request.floor_description, floor_price=request.floor_price, floor_type_id=request.floor_type_id)
+    new_floor = models.Floor(floor_id=floor_id, floor_name=request.floor_name,
+                             floor_description=request.floor_description, floor_price=request.floor_price,
+                             floor_type_id=request.floor_type_id)
 
     if floor_image_file:
         basename_image = uuid.uuid4()
@@ -77,7 +78,7 @@ def destroy(id: int, db: Session):
         )
     basename_image = floor_to_delete.first().floor_images.split('/')[3]
     path_image_delete = Path(
-            f'{IMAGES_DIR}/{basename_image}.png').as_posix()
+        f'{IMAGES_DIR}/{basename_image}.png').as_posix()
     if os.path.exists(path_image_delete):
         os.remove(path_image_delete)
     floor_to_delete.delete(synchronize_session=False)
@@ -104,11 +105,11 @@ def update(request: schemas.UpdateFloor, db: Session):
     #     "floor_type_id": floorTypeId,
     #     "old_floor_id": oldFloorId,
     #     "floor_id": baseFloorId
-    new_floor_id =  f"{request.floor_type_id}-{request.floor_id}"
-    new_floor = models.Floor(floor_id=new_floor_id,floor_name=request.floor_name,
-                             floor_description=request.floor_description, 
+    new_floor_id = f"{request.floor_type_id}-{request.floor_id}"
+    new_floor = models.Floor(floor_id=new_floor_id, floor_name=request.floor_name,
+                             floor_description=request.floor_description,
                              floor_price=request.floor_price, floor_type_id=request.floor_type_id)
-    
+
     floor = db.query(models.Floor).filter(
         models.Floor.floor_id == request.old_floor_id.strip())
     if not floor.first():
@@ -119,7 +120,6 @@ def update(request: schemas.UpdateFloor, db: Session):
     if not 'http://' in request.floor_images:
         base64_image = request.floor_images.split(',')[1]
         image_data = base64.b64decode(base64_image)
-
 
         basename_image = floor.first().floor_images.split('/')[3]
         floor_image_path = Path(
@@ -175,12 +175,11 @@ def get_floors_by_floor_type_id(floor_type_id, db):
     print(floor_type_id)
     if floor_type_id == "all":
         return get_all(db=db)
-    
+
     floor_type.check_floor_type(floor_type_id, db)
     floors = db.query(models.Floor).filter(
         models.Floor.floor_type_id == floor_type_id).all()
     return floors
-
 
 
 def check_floor(floor_id, db):
@@ -190,5 +189,3 @@ def check_floor(floor_id, db):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Floor với id: {floor_id} đã tồn tại!"
         )
-
-

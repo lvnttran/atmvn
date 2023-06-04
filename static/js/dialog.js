@@ -129,20 +129,25 @@ async function addNewFloor(dialogId) {
     const floorTypeSelect = dialogAddFloor.querySelector('#floorType').value;
     const baseFloorId = dialogAddFloor.querySelector('#baseFloorId').value;
     const floorName = dialogAddFloor.querySelector('#floorName').value;
-    const floorImageFile = dialogAddFloor.querySelector('#floorImageFile').files[0];
+    const floorImageFiles = dialogAddFloor.querySelector('#floorImageFile').files;
     const floorDescription = dialogAddFloor.querySelector('#floorDescription').value;
     const floorPrice = dialogAddFloor.querySelector('#floorPrice').value;
-  
 
-    // Create a FormData object to send the file and other data
+    // Create a FormData object to send the files and other data
     const formData = new FormData();
     formData.append('floor_id', baseFloorId);
     formData.append('floor_type_id', floorTypeSelect);
     formData.append('floor_name', floorName);
     formData.append('floor_description', floorDescription);
     formData.append('floor_price', floorPrice);
-    formData.append('floor_image', floorImageFile);
-    const addFloor = await fetch(`/api/floors?floor_id=${baseFloorId}&floor_type_id=${floorTypeSelect}&floor_name=${floorName}&floor_description=${floorDescription}&floor_price=${floorPrice}`, {
+
+    // Append each file to the FormData object
+    for (let i = 0; i < floorImageFiles.length; i++) {
+        const file = floorImageFiles[i];
+        formData.append('floor_images', file);
+    }
+
+    const addFloor = await fetch(`/api/floors`, {
         method: 'POST',
         headers: {
             'Authorization': localStorage.getItem('Authorization'),
@@ -150,14 +155,15 @@ async function addNewFloor(dialogId) {
         },
         body: formData,
         redirect: 'follow',
-    })
-    console.log(addFloor)
+    });
+
+    console.log(addFloor);
+
     if (addFloor.status === 201) {
         generateMessage('success', 'Bạn đã thêm floor mới thành công!');
         closeDialog('add-floor-dialog');
         clearTable();
         loadTable();
-
     }
     else if (addFloor.status === 401) {
         window.location.href = 'http://' + host + '/login';
@@ -166,6 +172,7 @@ async function addNewFloor(dialogId) {
         generateMessage('danger', 'Thêm thất bại! Vui lòng kiểm tra lại.');
     }
 }
+
 
 
 async function deleteFloor(floor_id) {
