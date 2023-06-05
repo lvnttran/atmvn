@@ -2,6 +2,7 @@ from fastapi import HTTPException, status, Response
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, File
+import shutil
 from typing import Optional
 import uuid
 import os
