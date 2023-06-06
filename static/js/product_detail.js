@@ -22,7 +22,7 @@ function loadProduct() {
         img_zoom.src = `/${floorImgs[0][1]}`
 
         const product_title = document.getElementById('floor-title');
-        product_title.textContent = `Chi tiêt mã: ${data.floor_id}`
+        product_title.textContent = `Chi tiết mã: ${data.floor_id}`
 
         const product_name = document.getElementById('floor-name');
         product_name.textContent = `Sàn gỗ ${data.floor_name}`
