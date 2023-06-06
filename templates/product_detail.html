@@ -4,207 +4,49 @@
 <head>
     <meta charset="UTF-8">
     <title>Details</title>
+    <link href="../static/css/index.css" rel="stylesheet">
+    <link href="../static/css/product_detail.css" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/bootstrap.css') }}" rel="stylesheet">
     <link href="{{url_for('static', path='/css/home.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <!--/* Navbar Styles */-->
-    <style>
-    .navbar {
-      background-color: #fff;
-      border-bottom: 1px solid rgba(0, 0, 0, .1);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, .04);
-      padding: 1rem 0;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-    }
 
-    .navbar-brand {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #000;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
 
-    .nav-link {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #000;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0 50px;
-    }
-
-    .nav-link:hover,
-    .nav-link:focus {
-      color: #000;
-    }
-
-    .dropdown-menu {
-      border: none;
-      border-radius: 0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, .04);
-    }
-
-    .dropdown-item {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #000;
-    }
-
-    .dropdown-item:hover,
-    .dropdown-item:focus {
-      color: #fff;
-      background-color: #000;
-    }
-
-    .dropdown-menu>li>a:hover,
-    .dropdown-menu>li>a:focus {
-      color: #fff;
-      background-color: #000;
-    }
-
-    .dropdown-menu-end {
-      right: 0;
-      left: auto;
-    }
-
-    .dropdown-toggle::after {
-      display: none;
-    }
-
-    .dropdown-item.active,
-    .dropdown-item:active {
-      color: #fff;
-      background-color: #000;
-    }
-
-    @media (max-width: 991.98px) {
-      .navbar {
-        padding: .75rem 0;
-      }
-
-      .navbar-brand {
-        font-size: 1.25rem;
-      }
-
-      .nav-link {
-        font-size: 1rem;
-      }
-    }
+    <script>
+    function changTopNavbar(){
+    var navbar = document.getElementById("navbar");
+    document.body.style.paddingTop = navbar.offsetHeight + "px";
+  };
+  
+  window.addEventListener("resize", function() {
+    changTopNavbar();
+    
+  });
 
 
 
-
-    </style>
-
-    <style>
-        .container {
-            margin-top: 50px;
-            margin-bottom: 50px;
-        }
-
-        .mini-slide {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
-
-        .mini-slide img {
-            width: 70px;
-            height: 70px;
-            margin: 0 10px;
-            cursor: pointer;
-            border: 2px solid #CCC;
-        }
-
-        .mini-slide img:hover {
-            border: 2px solid #007bff;
-        }
-
-        .card-text {
-            font-size: 16px;
-            line-height: 1.5;
-            color: #666;
-            margin-top: 15px;
-        }
-
-        .product-image {
-            max-height: 400px;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border: 2px solid #CCC;
-        }
-
-        .product-title {
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-
-        .product-price {
-            font-size: 24px;
-            font-weight: 600;
-            color: #007bff;
-            margin-top: 20px;
-        }
-
-        hr {
-            border: 1px solid #CCC;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media only screen and (max-width: 768px) {
-            .mini-slide img {
-                width: 50px;
-                height: 50px;
-            }
-
-            .product-image {
-                max-height: 300px;
-            }
-        }
-
-
-
-
-    </style>
+    </script>
 </head>
 
 <body>
-<div style="max-height:60%">
-    <div class="header1" id="product-infor">
-        <a href="javascript:history.back()" class="home-button"><i class="fas fa-arrow-left"></i>BACK</a>
-        <div class="container">
-            <h1 class="product-title" id="floor-title"></h1>
+<div id="floor_id_detail" value="{{ floor_id }}"></div>
+<a href="javascript:history.back()" class="home-button"><i class="fas fa-arrow-left"></i>BACK</a>
+<div class="container">
+    <h1 class="product-title" id="floor-title"></h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-7">
+            <img src="" class="card-img-top product-image" alt="Floor Image" id="main-img">
+        </div>
+        <div class="col-md-5">
+            <h1 class="product-name" id="floor-name">Loading...</h1>
             <hr>
-            <div class="row">
-                <div class="col-md-7">
-                    <img src="" class="card-img-top product-image" alt="Floor Image" id="main-img">
-                </div>
-                <div class="col-md-5">
-                    <h1 class="product-title" id="floor-name">Loading...</h1>
-                    <hr>
-                    <p class="card-text" id="floor-description">Loading...</p>
-                    <hr>
-                    <h5 class="product-price" id="floor-price">Loading...</h5>
-                </div>
-            </div>
-            <div class="mini-slide">
-                <img src="/static/images/swaran.jpg"
-                     onclick="document.getElementById('main-img').src='/static/images/swaran.jpg'" alt="swaran">
-                <img src="/static/images/sabo.jpg"
-                     onclick="document.getElementById('main-img').src='/static/images/sabo.jpg'" alt="sabo">
-                <img src="/static/images/avadol.jpg"
-                     onclick="document.getElementById('main-img').src='/static/images/avadol.jpg'" alt="avadol">
-            </div>
+            <p class="product-description" id="floor-description">Loading...</p>
+            <hr>
+            <h5 class="product-price" id="floor-price">Loading...</h5>
         </div>
     </div>
+    <div class="mini-slide"></div>
 </div>
 <!-- Image -->
 <script src="../static/js/product_detail.js"></script>
@@ -212,36 +54,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 <script src="../static/js/index.js"></script>
 <script>loadProduct();</script>
-<script>
-        // Function to change the main image
-        function changeMainImage(imageUrl) {
-            document.getElementById('main-img').src = imageUrl;
-        }
 
-        // Function to fetch the floor data from the API
-        function fetchFloorData(floorId) {
-            fetch(`/api/floors/${floorId}`)
-                .then(response => response.json())
-                .then(data => {
-                    // Populate the data in the HTML
-                    document.getElementById('floor-title').innerText = " Chi tiết mã " + floorId ;
-                    document.getElementById('floor-name').innerText = "Sàn gỗ " + data.floor_name;
-                    document.getElementById('floor-description').innerText = "Mô tả: " + data.floor_description;
-                    document.getElementById('floor-price').innerText = "Giá: " + data.floor_price + " VND";
-                    document.getElementById('main-img').src = `/${data.floor_images}`;
-                })
-                .catch(error => console.log(error));
-        }
-
-        // Get the floor ID from the URL
-        <!--const floorId = window.location.pathname.split('/')[2];-->
-        const floorId = "{{ floor_id }}";
-
-        // Fetch the floor data
-        fetchFloorData(floorId);
-
-
-</script>
 
 </body>
 

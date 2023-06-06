@@ -1,9 +1,23 @@
+function ranId(n = 15) {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (var i = 0; i < n; i++) {
+        text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+}
+
 async function openDialog(dialogId, floorId = None) {
 
     const dialog = document.getElementById(dialogId)
     fetchFloorTypes(dialog);
     dialog.showModal();
     if (floorId) {
+        const table_image = dialog.querySelector("#table");
+        const rows = table_image.rows;
+        while (rows.length > 2) {
+            table_image.deleteRow(rows.length - 1);
+          }
         const getFloor = await fetch('http://' + host + '/api/floors/' + floorId, {
             headers: {
                 'Accept': 'application/json'
@@ -14,25 +28,46 @@ async function openDialog(dialogId, floorId = None) {
             const floorId = data.floor_id;
             const floorTypeId = data.floor_type_id;
             const floorName = data.floor_name;
-            const floorimg = data.floor_images;
+            const floorimgs = data.floor_images;
             const floorDescription = data.floor_description;
             const floorPrice = data.floor_price;
-            
+           
+            floorimglist = floorimgs.split('~');
+            floorImages = floorimglist.map(function(floorimg) {
+                const items = floorimg.split('|');
+                if (items.length === 2) {
+                    return items;
+                }
+            }).filter(function(item) {
+                return item !== undefined;
+              });
+        
 
-
+            addImageFromEdit(dialogId, floorImages)
             const dialogEditFloor = document.getElementById(dialogId)
             dialogEditFloor.querySelector('#baseFloorId').value = floorId.split('-').slice(1).join("-");
             dialogEditFloor.querySelector('#floorName').value = floorName;
-            dialogEditFloor.querySelector('#img_view_edit').src = 'http://' + host + '/' + floorimg;
+            // dialogEditFloor.querySelector('#img_view_edit').src = 'http://' + host + '/' + floorimg;
             dialogEditFloor.querySelector('#floorDescription').value = floorDescription;
             dialogEditFloor.querySelector('#floorPrice').value = floorPrice;
             dialogEditFloor.querySelector('#floorType').value = floorTypeId;
             dialogEditFloor.querySelector('#btnEditFloor').value = floorId;
-            
+
 
         }
-
-
+    }
+    else {
+        dialog.querySelector('#baseFloorId').value = '';
+        dialog.querySelector('#floorName').value = '';
+        dialog.querySelector('#floorDescription').value = '';
+        dialog.querySelector('#floorPrice').value = '';
+        const table_image = dialog.querySelector("#table");
+        const rows = table_image.rows;
+        while (rows.length > 2) {
+            table_image.deleteRow(rows.length - 1);
+          }
+            
+          
     }
 }
 
@@ -44,15 +79,29 @@ async function editFloor(editDialogId) {
     const floorName = dialogEditFloor.querySelector('#floorName').value;
     const floorDescription = dialogEditFloor.querySelector('#floorDescription').value;
     const floorPrice = dialogEditFloor.querySelector('#floorPrice').value;
-    const floorImgSrc = dialogEditFloor.querySelector('#img_view_edit').src;
     const oldFloorId = dialogEditFloor.querySelector('#btnEditFloor').value
     var myHeaders = new Headers();
     myHeaders.append("accept", "application/json");
     myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", localStorage.getItem('Authorization'));
+
+    const tbody = dialogEditFloor.querySelector('#table tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.shift();
+    const imageDict = {};
+    rows.forEach((row) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const previewImage = row.querySelector('img');
+        const name = nameInput.value;
+        const src = previewImage.src;
+        imageDict[name] = src;
+
+    });
+    const floorImageString = JSON.stringify(imageDict);
 
     var raw = JSON.stringify({
         "floor_name": floorName,
-        "floor_images": floorImgSrc,
+        "floor_images": floorImageString,
         "floor_description": floorDescription,
         "floor_price": floorPrice,
         "floor_type_id": floorTypeId,
@@ -76,7 +125,8 @@ async function editFloor(editDialogId) {
         clearTable();
         loadTable();
     } else if (updateFloor.status === 401) {
-        window.location.href = 'http://' + host + '/login';
+        // window.location.href = 'http://' + host + '/login';
+        console.log("lỗi")
         generateMessage('warning', 'Bạn vui lòng đăng nhập!');
     } else {
         generateMessage('danger', 'Edit thất bại! Vui lòng kiểm tra lại.');
@@ -129,41 +179,48 @@ async function addNewFloor(dialogId) {
     const floorTypeSelect = dialogAddFloor.querySelector('#floorType').value;
     const baseFloorId = dialogAddFloor.querySelector('#baseFloorId').value;
     const floorName = dialogAddFloor.querySelector('#floorName').value;
-    const floorImageFiles = dialogAddFloor.querySelector('#floorImageFile').files;
+
     const floorDescription = dialogAddFloor.querySelector('#floorDescription').value;
     const floorPrice = dialogAddFloor.querySelector('#floorPrice').value;
 
-    // Create a FormData object to send the files and other data
-    const formData = new FormData();
-    formData.append('floor_id', baseFloorId);
-    formData.append('floor_type_id', floorTypeSelect);
-    formData.append('floor_name', floorName);
-    formData.append('floor_description', floorDescription);
-    formData.append('floor_price', floorPrice);
+    const tbody = dialogAddFloor.querySelector('#table tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.shift();
+    const imageDict = {};
+    rows.forEach((row) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const previewImage = row.querySelector('img');
+        const name = nameInput.value;
+        const src = previewImage.src;
+        imageDict[name] = src;
 
-    // Append each file to the FormData object
-    for (let i = 0; i < floorImageFiles.length; i++) {
-        const file = floorImageFiles[i];
-        formData.append('floor_images', file);
-    }
-
-    const addFloor = await fetch(`/api/floors`, {
-        method: 'POST',
-        headers: {
-            'Authorization': localStorage.getItem('Authorization'),
-            'Accept': 'application/json'
-        },
-        body: formData,
-        redirect: 'follow',
     });
-
-    console.log(addFloor);
-
+    const floorImageString = JSON.stringify(imageDict);
+  
+    var raw = JSON.stringify({
+        "floor_id": baseFloorId,
+        "floor_name": floorName,
+        "floor_images": floorImageString,
+        "floor_description": floorDescription,
+        "floor_price": floorPrice,
+        "floor_type_id": floorTypeSelect
+      });
+    var myHeaders = new Headers();
+    myHeaders.append("accept", "application/json");
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Authorization", localStorage.getItem('Authorization'));
+    const addFloor = await fetch('/api/floors/', {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow',
+    })
     if (addFloor.status === 201) {
         generateMessage('success', 'Bạn đã thêm floor mới thành công!');
         closeDialog('add-floor-dialog');
         clearTable();
         loadTable();
+
     }
     else if (addFloor.status === 401) {
         window.location.href = 'http://' + host + '/login';
@@ -172,7 +229,6 @@ async function addNewFloor(dialogId) {
         generateMessage('danger', 'Thêm thất bại! Vui lòng kiểm tra lại.');
     }
 }
-
 
 
 async function deleteFloor(floor_id) {
@@ -230,4 +286,133 @@ async function fetchFloorTypes(dialog) {
             console.log('Selected value:', selectedFloorTypeId);
         });
     }
+}
+
+
+function addImageFromEdit(dialogId, imgs) {
+    dialog = document.getElementById(dialogId);
+    var table = dialog.querySelector('#table');
+    fileInput = dialog.querySelector('.add-files');
+    var rowTemplate = dialog.querySelector('#row-template-add');
+    for (let i = 0; i < imgs.length; i++) { // Lặp qua danh sách các file để xử lý mỗi tệp tin riêng lẻ
+        img = imgs[i]
+        const newRow = rowTemplate.cloneNode(true);
+        const baseId = ranId();
+        newRow.id = baseId;
+        const nameImage = newRow.querySelector('#name_image');
+        const previewImg = newRow.querySelector('#preview');
+        const fileUpdate = newRow.querySelector('#file_input_update');
+        const editButton = newRow.querySelector('#edit-button');
+        const saveButton = newRow.querySelector('#save-button');
+        const deleteButton = newRow.querySelector('#delete-button');
+
+        nameImage.value = img[0]
+        previewImg.src = `/${img[1]}`;
+
+        previewImg.addEventListener('click', function () {
+            fileUpdate.click();
+        });
+
+
+        deleteButton.addEventListener('click', function () {
+            deleteRow(newRow.id);
+        });
+
+        editButton.addEventListener('click', function () {
+            this.style.display = 'none';
+            saveButton.style.display = '';
+            previewImg.style.pointerEvents = '';
+            nameImage.disabled = false;
+        });
+
+        saveButton.addEventListener('click', function () {
+            this.style.display = 'none';
+            editButton.style.display = '';
+            previewImg.style.pointerEvents = 'none';
+            nameImage.disabled = true;
+        });
+
+        table.querySelector('tbody').appendChild(newRow);
+        newRow.style.display = '';
+    }
+}
+
+function openImage(dialogId) {
+    dialog = document.getElementById(dialogId);
+    dialog.querySelector('.add-files').click();
+}
+
+function addImage(dialogId) {
+    dialog = document.getElementById(dialogId);
+    var table = dialog.querySelector('#table');
+    fileInput = dialog.querySelector('.add-files');
+    var rowTemplate = dialog.querySelector('#row-template-add');
+    const files = fileInput.files; // Lấy danh sách các file đã chọn
+    for (let i = 0; i < files.length; i++) { // Lặp qua danh sách các file để xử lý mỗi tệp tin riêng lẻ
+        const file = files[i];
+        const reader = new FileReader();
+        reader.addEventListener('load', function () {
+            const newRow = rowTemplate.cloneNode(true);
+            const baseId = ranId();
+            newRow.id = baseId;
+            const nameImage = newRow.querySelector('#name_image');
+            const previewImg = newRow.querySelector('#preview');
+            const fileUpdate = newRow.querySelector('#file_input_update');
+            const editButton = newRow.querySelector('#edit-button');
+            const saveButton = newRow.querySelector('#save-button');
+            const deleteButton = newRow.querySelector('#delete-button');
+
+            nameImage.value = file.name.slice(0, file.name.lastIndexOf('.'));
+            previewImg.src = reader.result;
+
+            previewImg.addEventListener('click', function () {
+                fileUpdate.click();
+            });
+
+
+            deleteButton.addEventListener('click', function () {
+                deleteRow(newRow.id);
+            });
+
+            editButton.addEventListener('click', function () {
+                this.style.display = 'none';
+                saveButton.style.display = '';
+                previewImg.style.pointerEvents = '';
+                nameImage.disabled = false;
+            });
+
+            saveButton.addEventListener('click', function () {
+                this.style.display = 'none';
+                editButton.style.display = '';
+                previewImg.style.pointerEvents = 'none';
+                nameImage.disabled = true;
+            });
+
+            table.querySelector('tbody').appendChild(newRow);
+            newRow.style.display = '';
+        });
+        reader.readAsDataURL(file);
+    }
+}
+
+function deleteRow(idRow) {
+    row = document.getElementById(idRow);
+    if (row) {
+        row.remove()
+    }
+}
+
+
+function updateImage(rowId) {
+    console.log(rowId)
+    row = document.querySelector(`#${rowId}`);
+    var fileUpdate = row.querySelector('#file_input_update');
+    const previewImg = row.querySelector('#preview');
+
+    var oFReader = new FileReader();
+    oFReader.readAsDataURL(fileUpdate.files[0]);
+
+    oFReader.onload = function (oFREvent) {
+        previewImg.src = oFREvent.target.result;
+    };
 }
